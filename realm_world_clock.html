@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111111">
+<title>REALM — World Clock</title>
+<style>
+  :root { color-scheme: dark; --bg:#111; --panel:#171717; --line:#303030; --muted:#929292; --text:#f1f0eb; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+    font-family: Inter, Helvetica, Arial, sans-serif; display:grid; place-items:center; padding:24px; }
+  main { width:min(100%, 520px); }
+  header { display:flex; justify-content:space-between; align-items:center; padding-bottom:22px; border-bottom:1px solid var(--line); }
+  .brand { font-size:12px; letter-spacing:.24em; font-weight:700; }
+  .live { color:#aaa; font-size:10px; letter-spacing:.16em; display:flex; gap:7px; align-items:center; }
+  .dot { width:6px; height:6px; border-radius:50%; background:#b7c5ae; box-shadow:0 0 9px #b7c5ae66; }
+  .intro { padding:25px 0 18px; }
+  .eyebrow { color:var(--muted); font-size:10px; letter-spacing:.17em; text-transform:uppercase; }
+  .local { display:flex; justify-content:space-between; align-items:end; margin-top:9px; }
+  .local-label { font-size:15px; }
+  .local-time { font:500 clamp(30px,8vw,42px)/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing:-.06em; }
+  .list { background:var(--panel); border:1px solid var(--line); border-radius:3px; overflow:hidden; }
+  .person { display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid var(--line); }
+  .person:last-child { border-bottom:0; }
+  .name { font-size:14px; letter-spacing:.02em; }
+  .zone { color:var(--muted); font-size:10px; margin-top:5px; letter-spacing:.1em; text-transform:uppercase; }
+  .time { font:500 clamp(23px,6vw,29px)/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing:-.055em; font-variant-numeric:tabular-nums; }
+  footer { display:flex; justify-content:space-between; gap:12px; color:var(--muted); font-size:10px; line-height:1.5; padding-top:14px; }
+  @media (max-width:380px) { body{padding:16px} .person{padding:16px} }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="brand">REALM<span style="color:#777">.</span></div>
+    <div class="live"><span class="dot"></span> LIVE CLOCK</div>
+  </header>
+  <section class="intro">
+    <div class="eyebrow">BEATING 100 HOURS STREAK</div>
+    <div style="height:12px"></div>
+    <div class="eyebrow">Your timezone · <span id="zone">detecting…</span></div>
+    <div class="local"><div class="local-label">Your local time</div><div class="local-time" id="local">--:--</div></div>
+  </section>
+  <section class="list" aria-label="Group world clocks">
+    <div class="person"><div><div class="name">Arcane</div><div class="zone">UTC +01:00</div></div><div class="time" data-offset="1">--:--</div></div>
+    <div class="person"><div><div class="name">Reski</div><div class="zone">UTC +01:00</div></div><div class="time" data-offset="1">--:--</div></div>
+    <div class="person"><div><div class="name">Angel</div><div class="zone">UTC −05:00</div></div><div class="time" data-offset="-5">--:--</div></div>
+    <div class="person"><div><div class="name">Lychi</div><div class="zone">UTC +10:30</div></div><div class="time" data-offset="10.5">--:--</div></div>
+  </section>
+  <footer><span>Times update automatically</span><span>24-HOUR FORMAT</span></footer>
+</main>
+<script>
+  const pad = n => String(n).padStart(2, "0");
+  const localZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "Your device";
+  document.getElementById("zone").textContent = localZone.replaceAll("_", " ");
+  function partsAtOffset(date, offsetHours) {
+    const shifted = new Date(date.getTime() + offsetHours * 60 * 60 * 1000);
+    return `${pad(shifted.getUTCHours())}:${pad(shifted.getUTCMinutes())}`;
+  }
+  function update() {
+    const now = new Date();
+    document.getElementById("local").textContent =
+      new Intl.DateTimeFormat(undefined, {hour:"2-digit", minute:"2-digit", hourCycle:"h23"}).format(now);
+    document.querySelectorAll("[data-offset]").forEach(el => {
+      el.textContent = partsAtOffset(now, Number(el.dataset.offset));
+    });
+  }
+  update();
+  setInterval(update, 1000);
+</script>
+</body>
+</html>
